@@ -34,9 +34,10 @@ import (
 type BackendType string
 
 const (
-	AWSBackend   BackendType = "velero.io/aws"
-	AzureBackend BackendType = "velero.io/azure"
-	GCPBackend   BackendType = "velero.io/gcp"
+	AWSBackend          BackendType = "velero.io/aws"
+	AzureBackend        BackendType = "velero.io/azure"
+	GCPBackend          BackendType = "velero.io/gcp"
+	AlibabaCloudBackend BackendType = "velero.io/alibabacloud"
 )
 
 // this func is assigned to a package-level variable so it can be
@@ -86,6 +87,15 @@ func getRepoPrefix(location *velerov1api.BackupStorageLocation) (string, error) 
 		return fmt.Sprintf("azure:%s:/%s", bucket, prefix), nil
 	case GCPBackend:
 		return fmt.Sprintf("gs:%s:/%s", bucket, prefix), nil
+	case AlibabaCloudBackend:
+		var endpoint string
+		if location.Spec.Config["region"] != "" {
+			region := location.Spec.Config["region"]
+			endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
+		} else {
+			endpoint = "oss-cn-hangzhou.aliyuncs.com"
+		}
+		return fmt.Sprintf("oss:%s/%s/%s", endpoint, bucket, prefix), nil
 	}
 
 	return "", errors.New("restic repository prefix (resticRepoPrefix) not specified in backup storage location's config")
