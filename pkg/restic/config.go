@@ -89,6 +89,26 @@ func getRepoPrefix(location *velerov1api.BackupStorageLocation) (string, error) 
 		return fmt.Sprintf("gs:%s:/%s", bucket, prefix), nil
 	case AlibabaCloudBackend:
 		var endpoint string
+		if networkType := location.Spec.Config["network"]; networkType != "" {
+			switch networkType {
+			case "internal":
+				if location.Spec.Config["region"] != "" {
+					region := location.Spec.Config["region"]
+					endpoint = fmt.Sprintf("oss-%s-internal.aliyuncs.com", region)
+				} else {
+					endpoint = "oss-cn-hangzhou-internal.aliyuncs.com"
+				}
+			case "accelerate":
+				endpoint = "oss-accelerate.aliyuncs.com"
+			default:
+				if location.Spec.Config["region"] != "" {
+					region := location.Spec.Config["region"]
+					endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
+				} else {
+					endpoint = "oss-cn-hangzhou.aliyuncs.com"
+				}
+			}
+		}
 		if location.Spec.Config["region"] != "" {
 			region := location.Spec.Config["region"]
 			endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
