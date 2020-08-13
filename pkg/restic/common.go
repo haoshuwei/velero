@@ -295,3 +295,27 @@ func S3CmdEnv(backupLocationLister velerov1listers.BackupStorageLocationLister, 
 
 	return env, nil
 }
+
+
+// AlibabaCloudCmdEnv returns a list of environment variables (in the format var=val) that
+// should be used when running a restic command for an OSS backend. This list is
+// the current environment, plus the AlibabaCloud-specific variables restic needs, namely
+// a credential profile.
+func AlibabaCloudCmdEnv(backupLocationLister velerov1listers.BackupStorageLocationLister, namespace, backupLocation string) ([]string, error) {
+	loc, err := backupLocationLister.BackupStorageLocations(namespace).Get(backupLocation)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting backup storage location")
+	}
+
+	alibabaCloudVars, err := getAlibabaCloudResticEnvVars(loc.Spec.Config)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting alibaba cloud restic env vars")
+	}
+
+	env := os.Environ()
+	for k, v := range alibabaCloudVars {
+		env = append(env, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	return env, nil
+}

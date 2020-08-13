@@ -48,3 +48,4 @@ site/vendor
 .ruby-version
 
 .vs
+vendor

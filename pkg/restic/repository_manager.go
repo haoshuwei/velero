@@ -280,6 +280,16 @@ func (rm *repositoryManager) exec(cmd *Command, backupLocation string) error {
 			return err
 		}
 		cmd.Env = env
+	} else if strings.HasPrefix(cmd.RepoIdentifier, "oss") {
+		if !cache.WaitForCacheSync(rm.ctx.Done(), rm.backupLocationInformerSynced) {
+			return errors.New("timed out waiting for cache to sync")
+		}
+
+		env, err := AlibabaCloudCmdEnv(rm.backupLocationLister, rm.namespace, backupLocation)
+		if err != nil {
+			return err
+		}
+		cmd.Env = env
 	}
 
 	stdout, stderr, err := veleroexec.RunCommand(cmd.Cmd())
