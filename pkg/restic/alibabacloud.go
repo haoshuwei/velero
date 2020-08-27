@@ -84,6 +84,8 @@ func getAlibabaCloudResticEnvVars(config map[string]string) (map[string]string, 
 		if err := loadAlibabaCloudEnv(); err != nil {
 			return nil, err
 		}
+		accessKeyID = os.Getenv("ALIBABA_CLOUD_ACCESS_KEY_ID")
+		accessKeySecret = os.Getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET")
 	}
 
 	// get ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET
