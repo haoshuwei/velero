@@ -108,12 +108,13 @@ func getRepoPrefix(location *velerov1api.BackupStorageLocation) (string, error) 
 					endpoint = "oss-cn-hangzhou.aliyuncs.com"
 				}
 			}
-		}
-		if location.Spec.Config["region"] != "" {
-			region := location.Spec.Config["region"]
-			endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
 		} else {
-			endpoint = "oss-cn-hangzhou.aliyuncs.com"
+			if location.Spec.Config["region"] != "" {
+				region := location.Spec.Config["region"]
+				endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
+			} else {
+				endpoint = "oss-cn-hangzhou.aliyuncs.com"
+			}
 		}
 		return fmt.Sprintf("oss:%s/%s/%s", endpoint, bucket, prefix), nil
 	}
